@@ -1,0 +1,54 @@
+body{
+    background-color: rgb(224, 230, 246);
+}
+a{
+
+    color:black}
+    h1,h2,h3{text-align: center;}
+    img{border: 3px solid rgb(128, 114, 141) ;
+   
+height: 250px;
+width: 350px;}
+.simple{
+    font-family: 'Courier New', Courier, monospace;
+    color:rgb(6, 5, 5);
+    font-size: xx-large;
+    font-weight: bolder;
+    text-align: center;
+    list-style-position: inside;
+    }
+    .names{
+        font-family: 'Times New Roman', Times, serif;
+        color:rgb(6, 5, 5);
+        font-size: large;
+        font-weight: lighter;
+        text-align: center;
+        list-style-position: inside;
+        }
+        .list{
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            color:rgb(13, 13, 13);
+            font-size: x-large;
+            font-weight: bold;
+            text-align: center;
+            list-style-position: inside;
+            }
+            .nice{
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                color:rgb(13, 13, 13);
+                font-size: large;
+                font-weight: lighter;
+                text-align:center;
+                list-style-position: inside;
+                padding-left: 80px;
+                }
+                .center{
+                    align-items: center;
+                    align-content: center;
+                }
+                .left{
+                    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                    font-weight: 400;
+                    font-size: larger;
+                    padding-left: 900px;
+                }

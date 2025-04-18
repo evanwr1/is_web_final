@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Tron Light Cycles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <a href=".//website final/scratch.html">Return to Scratch</a>
+    <style>
+        /* Retro Neon Theme Variables */
+        :root {
+            --neon-cyan: #00ffff;
+            --neon-magenta: #ff00ff;
+            --neon-orange: #ff9900; /* Added for P2 */
+            --dark-bg: #0a0a1f; /* Darker blue/black */
+            --darker-bg: #000000;
+            --glow-cyan: 0 0 5px var(--neon-cyan), 0 0 10px var(--neon-cyan), 0 0 15px var(--neon-cyan);
+            --glow-orange: 0 0 5px var(--neon-orange), 0 0 10px var(--neon-orange), 0 0 15px var(--neon-orange);
+            --glow-magenta: 0 0 5px var(--neon-magenta), 0 0 10px var(--neon-magenta), 0 0 15px var(--neon-magenta); /* For messages */
+        }
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-color: var(--dark-bg);
+            color: var(--neon-cyan); /* Default text color */
+            overscroll-behavior: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        h1 {
+             color: var(--neon-magenta);
+             text-shadow: var(--glow-magenta);
+             font-size: 1.5rem; /* Adjusted size */
+             margin-bottom: 1rem;
+             text-align: center;
+        }
+
+        /* Status Display */
+        .status-display {
+             margin-bottom: 1rem;
+             font-size: 0.9rem; /* Adjust size */
+             color: #ffffff; /* White for status */
+             text-shadow: 0 0 3px #ffffff;
+             height: 2em; /* Reserve space */
+             text-align: center;
+        }
+        .player1-color { color: var(--neon-cyan); text-shadow: var(--glow-cyan); }
+        .player2-color { color: var(--neon-orange); text-shadow: var(--glow-orange); }
+
+
+        /* Game Board */
+        .game-board {
+            --grid-size: 30; /* Larger grid for Tron */
+            display: grid;
+            grid-template-columns: repeat(var(--grid-size), 1fr);
+            grid-template-rows: repeat(var(--grid-size), 1fr);
+            width: min(90vw, 80vh); /* Adjust size */
+            height: min(90vw, 80vh);
+            max-width: 600px;
+            max-height: 600px;
+            background-color: var(--darker-bg);
+            border: 3px solid var(--neon-cyan);
+            box-shadow: var(--glow-cyan), inset 0 0 15px rgba(0, 255, 255, 0.2);
+            border-radius: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .cell {
+            /* Grid lines */
+            border: 1px solid rgba(0, 255, 255, 0.1); /* Fainter cyan grid */
+            user-select: none;
+            /* Make cell content div fill the cell */
+            padding: 0;
+            display: flex; /* Use flex to center content div if needed */
+        }
+        .cell > div {
+             width: 100%;
+             height: 100%;
+        }
+
+
+        /* Light Trail Styling */
+        .trail-p1, .trail-p2 {
+            width: 100%;
+            height: 100%;
+        }
+
+        .trail-p1 {
+            background-color: var(--neon-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .trail-p2 {
+            background-color: var(--neon-orange);
+            box-shadow: var(--glow-orange);
+        }
+
+         /* Head styling (optional, can just be the leading trail segment) */
+        .head-p1 {
+            /* Could add extra glow or shape */
+            box-shadow: var(--glow-cyan), 0 0 20px white; /* Extra white glow for head */
+            z-index: 10;
+            position: relative;
+        }
+         .head-p2 {
+            box-shadow: var(--glow-orange), 0 0 20px white;
+            z-index: 10;
+            position: relative;
+        }
+
+
+        /* Message Box */
+        .message-box {
+            position: absolute; /* Position inside game-container */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(10, 10, 31, 0.9); /* Dark bg */
+            color: var(--neon-magenta);
+            text-shadow: var(--glow-magenta);
+            padding: 1.5rem 2rem;
+            border: 2px solid var(--neon-magenta);
+            box-shadow: var(--glow-magenta);
+            text-align: center;
+            z-index: 100;
+            display: none; /* Hidden by default */
+            font-size: 1rem; /* Adjust font size */
+            line-height: 1.6;
+        }
+        .message-box button {
+             font-family: 'Press Start 2P', cursive;
+             margin-top: 1rem;
+             padding: 0.75rem 1rem;
+             background-color: var(--darker-bg);
+             color: var(--neon-cyan);
+             border: 2px solid var(--neon-cyan);
+             box-shadow: var(--glow-cyan);
+             cursor: pointer;
+             transition: all 0.2s ease;
+             text-shadow: var(--glow-cyan);
+        }
+         .message-box button:hover {
+             background-color: var(--neon-cyan);
+             color: var(--darker-bg);
+             text-shadow: none;
+             box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+         }
+
+         /* Controls Info */
+         .controls-info {
+             margin-top: 1.5rem;
+             font-size: 0.7rem;
+             line-height: 1.5;
+             text-align: center;
+             color: #ccc; /* Lighter gray */
+             text-shadow: none;
+         }
+         .controls-info span {
+             display: inline-block;
+             margin: 0 0.5rem;
+         }
+
+    </style>
+</head>
+<body>
+
+    <h1>Neon Tron Cycles</h1>
+
+    <div id="status-display" class="status-display">Press Enter to Start</div>
+
+    <div id="game-board" class="game-board">
+        </div>
+
+    <div class="controls-info">
+         Controls:
+         <span class="player1-color">P1: WASD</span> |
+         <span class="player2-color">P2: Arrows</span>
+     </div>
+
+
+    <div id="message-box" class="message-box">
+        <p id="message-text" class="mb-4"></p>
+        <button id="restart-button">Restart</button>
+    </div>
+
+    <script>
+        // --- Game Configuration ---
+        const GRID_SIZE = 30; // Larger grid
+        const GAME_SPEED_MS = 100; // Faster speed for Tron
+
+        // Player Colors & Trails
+        const P1_COLOR = 'var(--neon-cyan)';
+        const P1_TRAIL_CLASS = 'trail-p1';
+        const P1_HEAD_CLASS = 'head-p1'; // Optional head styling
+        const P2_COLOR = 'var(--neon-orange)';
+        const P2_TRAIL_CLASS = 'trail-p2';
+        const P2_HEAD_CLASS = 'head-p2'; // Optional head styling
+
+        // --- DOM Elements ---
+        const gameBoard = document.getElementById('game-board');
+        const statusDisplay = document.getElementById('status-display');
+        const messageBox = document.getElementById('message-box');
+        const messageText = document.getElementById('message-text');
+        const restartButton = document.getElementById('restart-button');
+
+        // --- Game State Variables ---
+        let player1 = null;
+        let player2 = null;
+        let occupiedCells = {}; // Using an object as a hash set: { "x,y": "p1" | "p2" }
+        let gameIntervalId = null;
+        let isGameOver = false;
+        let isGameRunning = false; // To handle start state
+        let cells = []; // 2D array to store cell content divs
+
+        // --- Player Object Factory ---
+        function createPlayer(x, y, dx, dy, trailClass, headClass) {
+            return {
+                x: x,
+                y: y,
+                dx: dx, // Direction x (-1, 0, 1)
+                dy: dy, // Direction y (-1, 0, 1)
+                nextDx: dx, // Buffered direction change
+                nextDy: dy, // Buffered direction change
+                trail: [], // Array of {x, y} coords
+                trailClass: trailClass,
+                headClass: headClass,
+                isAlive: true
+            };
+        }
+
+        // --- Functions ---
+
+        function createBoard() {
+            console.log("Creating board...");
+            gameBoard.innerHTML = ''; // Clear previous board
+            gameBoard.style.setProperty('--grid-size', GRID_SIZE);
+            cells = [];
+            for (let y = 0; y < GRID_SIZE; y++) {
+                cells[y] = [];
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    const contentDiv = document.createElement('div'); // Div inside for styling trails
+                    cell.appendChild(contentDiv);
+                    gameBoard.appendChild(cell);
+                    cells[y][x] = contentDiv; // Store the inner div
+                }
+            }
+            console.log("Board created.");
+        }
+
+        function initGame() {
+            console.log("Initializing game...");
+            isGameOver = false;
+            isGameRunning = false; // Game waits for Enter key
+            occupiedCells = {}; // Clear occupied cells
+
+            // Create board if it doesn't exist
+            if (cells.length === 0) {
+                 createBoard();
+            } else {
+                // Clear existing trails from the board
+                 cells.flat().forEach(cellDiv => cellDiv.className = '');
+            }
+
+
+            // Initial player states
+            const startOffset = Math.floor(GRID_SIZE / 4);
+            player1 = createPlayer(startOffset, Math.floor(GRID_SIZE / 2), 1, 0, P1_TRAIL_CLASS, P1_HEAD_CLASS); // Start left, move right
+            player2 = createPlayer(GRID_SIZE - 1 - startOffset, Math.floor(GRID_SIZE / 2), -1, 0, P2_TRAIL_CLASS, P2_HEAD_CLASS); // Start right, move left
+
+            // Initial render (place heads) - mark initial positions but don't start loop yet
+            markCell(player1.x, player1.y, 'p1');
+            renderCell(player1.x, player1.y, [player1.trailClass, player1.headClass]);
+            markCell(player2.x, player2.y, 'p2');
+            renderCell(player2.x, player2.y, [player2.trailClass, player2.headClass]);
+
+            hideMessage();
+            statusDisplay.innerHTML = `Ready! <span class="player1-color">P1</span> vs <span class="player2-color">P2</span>. Press Enter to Start!`;
+
+            if (gameIntervalId) {
+                clearInterval(gameIntervalId);
+                gameIntervalId = null;
+            }
+            console.log("Game initialized, waiting for start.");
+        }
+
+        function startGameLoop() {
+             if (isGameRunning || isGameOver) return; // Don't start if already running or over
+             console.log("Starting game loop...");
+             isGameRunning = true;
+             statusDisplay.textContent = 'GO!';
+             // Start game loop
+             gameIntervalId = setInterval(gameLoop, GAME_SPEED_MS);
+        }
+
+
+        // Mark a cell as occupied by a player's trail
+        function markCell(x, y, playerId) {
+            occupiedCells[`${x},${y}`] = playerId;
+        }
+
+        // Check if a cell is occupied by any trail or is out of bounds
+        function isCellOccupied(x, y) {
+            // Check bounds
+            if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) {
+                return true; // Wall collision
+            }
+            // Check trails
+            return occupiedCells.hasOwnProperty(`${x},${y}`);
+        }
+
+        // Render a specific cell's trail segment
+        function renderCell(x, y, classNames = []) {
+             if (cells[y]?.[x]) {
+                 // Clear existing classes first, then add new ones
+                 cells[y][x].className = '';
+                 classNames.forEach(cn => cells[y][x].classList.add(cn));
+             }
+        }
+
+        // --- Input Handling ---
+        function handleInput(event) {
+            // Start game on Enter if not running
+            if (!isGameRunning && !isGameOver && event.key === 'Enter') {
+                startGameLoop();
+                return;
+            }
+
+            if (!isGameRunning || isGameOver) return; // Ignore movement input if game not running
+
+            // Player 1 Controls (WASD)
+            switch (event.key.toLowerCase()) {
+                case 'w': // Up
+                    if (player1.dy === 0) { player1.nextDx = 0; player1.nextDy = -1; }
+                    break;
+                case 's': // Down
+                    if (player1.dy === 0) { player1.nextDx = 0; player1.nextDy = 1; }
+                    break;
+                case 'a': // Left
+                    if (player1.dx === 0) { player1.nextDx = -1; player1.nextDy = 0; }
+                    break;
+                case 'd': // Right
+                    if (player1.dx === 0) { player1.nextDx = 1; player1.nextDy = 0; }
+                    break;
+            }
+
+            // Player 2 Controls (Arrow Keys)
+            switch (event.key) {
+                case 'ArrowUp':
+                    if (player2.dy === 0) { player2.nextDx = 0; player2.nextDy = -1; }
+                    break;
+                case 'ArrowDown':
+                    if (player2.dy === 0) { player2.nextDx = 0; player2.nextDy = 1; }
+                    break;
+                case 'ArrowLeft':
+                    if (player2.dx === 0) { player2.nextDx = -1; player2.nextDy = 0; }
+                    break;
+                case 'ArrowRight':
+                    if (player2.dx === 0) { player2.nextDx = 1; player2.nextDy = 0; }
+                    break;
+            }
+             // Prevent page scrolling with arrow keys
+             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                 event.preventDefault();
+             }
+        }
+
+        // --- Game Logic ---
+        function movePlayer(player, playerId) {
+            if (!player.isAlive) return false; // Skip dead players
+
+            // Update direction from buffer
+            player.dx = player.nextDx;
+            player.dy = player.nextDy;
+
+            // Calculate next position
+            const nextX = player.x + player.dx;
+            const nextY = player.y + player.dy;
+
+            // Check for collision
+            if (isCellOccupied(nextX, nextY)) {
+                player.isAlive = false;
+                console.log(`Player ${playerId} crashed!`);
+                // Optional: Render crash effect?
+                renderCell(player.x, player.y, [player.trailClass]); // Remove head class on crash
+                return true; // Player crashed
+            }
+
+            // No collision - Move player
+            // Render previous head position as normal trail
+            renderCell(player.x, player.y, [player.trailClass]);
+
+            // Update position
+            player.x = nextX;
+            player.y = nextY;
+
+            // Mark new cell as occupied
+            markCell(player.x, player.y, playerId);
+
+            // Render new head position
+            renderCell(player.x, player.y, [player.trailClass, player.headClass]);
+
+            return false; // Player did not crash
+        }
+
+        function gameLoop() {
+            if (isGameOver) return;
+
+            const p1Crashed = movePlayer(player1, 'p1');
+            const p2Crashed = movePlayer(player2, 'p2');
+
+            // Check game over conditions
+            if (p1Crashed && p2Crashed) {
+                endGame("It's a Draw!");
+            } else if (p1Crashed) {
+                endGame("Player 2 Wins!");
+            } else if (p2Crashed) {
+                endGame("Player 1 Wins!");
+            }
+        }
+
+        // --- Game Over & Restart ---
+        function endGame(message) {
+            if (isGameOver) return;
+            console.log("Game Over:", message);
+            isGameOver = true;
+            isGameRunning = false;
+            clearInterval(gameIntervalId);
+            gameIntervalId = null;
+
+             // Style winner/loser text
+             let finalMessage = message;
+             if (message.includes("Player 1 Wins")) {
+                 finalMessage = `<span class="player1-color">${message}</span>`;
+             } else if (message.includes("Player 2 Wins")) {
+                 finalMessage = `<span class="player2-color">${message}</span>`;
+             } else { // Draw
+                 finalMessage = `<span style="color: white;">${message}</span>`;
+             }
+
+            messageText.innerHTML = finalMessage; // Use innerHTML for styled spans
+            messageBox.style.display = 'block';
+            statusDisplay.innerHTML = 'Game Over!';
+        }
+
+        function hideMessage() {
+            messageBox.style.display = 'none';
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('keydown', handleInput);
+        restartButton.addEventListener('click', initGame);
+
+
+        // --- Initial Load ---
+        window.onload = initGame;
+
+    </script>
+
+</body>
+</html>
